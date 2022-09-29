@@ -1,13 +1,11 @@
 from fastapi import FastAPI
-from psycopg2.extras import RealDictCursor
-from .config import settings
-from .database import conn, create_tables
+from .routers import user
 
 app = FastAPI()
 
-create_tables()
+app.include_router(user.router)
 
 
 @app.get("/")
 def root():
-    return "Hello"
+    return "Success"
