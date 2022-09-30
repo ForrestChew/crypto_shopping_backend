@@ -44,12 +44,40 @@ def client(session):
 
 @pytest.fixture
 def test_user(client):
-    user_data = {"email": "testuser@gmail.com", "password": "testing123@"}
+    user_data = {
+        "email": "testuser@gmail.com",
+        "password": "testing123@",
+    }
     res = client.post("/users/", json=user_data)
     assert res.status_code == 201
     new_user = res.json()
     new_user["password"] = user_data["password"]
     return new_user
+
+
+@pytest.fixture
+def test_admin(client):
+    admin_data = {
+        "email": "testadmin@gmail.com",
+        "password": "admingtesting123@",
+        "is_administrator": True,
+    }
+    res = client.post("/users/", json=admin_data)
+    assert res.status_code == 201
+    new_admin = res.json()
+    new_admin["password"] = admin_data["password"]
+    return new_admin
+
+
+@pytest.fixture
+def admin_token(test_admin):
+    return create_access_token({"user_id": test_admin["id"]})
+
+
+@pytest.fixture
+def authed_admin_client(client, admin_token):
+    client.headers = {**client.headers, "Authorization": f"Bearer {admin_token}"}
+    return client
 
 
 @pytest.fixture
