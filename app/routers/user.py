@@ -7,19 +7,6 @@ from ..database import get_db
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
-@router.post(
-    "/", status_code=status.HTTP_201_CREATED, response_model=schemas.CreatedUser
-)
-def create_user(user: schemas.CreateUser, db: Session = Depends(get_db)):
-    hashed_password = utils.hash_password(user.password)
-    user.password = hashed_password
-    new_user = models.User(**user.dict())
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    return new_user
-
-
 @router.get("/", status_code=status.HTTP_200_OK, response_model=schemas.CreatedUser)
 def get_current_user(
     current_user: str = Depends(oauth2.get_current_user), db: Session = Depends(get_db)
@@ -52,3 +39,16 @@ def delete_user(
     user_query.delete(synchronize_session=False)
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post(
+    "/", status_code=status.HTTP_201_CREATED, response_model=schemas.CreatedUser
+)
+def create_user(user: schemas.CreateUser, db: Session = Depends(get_db)):
+    hashed_password = utils.hash_password(user.password)
+    user.password = hashed_password
+    new_user = models.User(**user.dict())
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return new_user
