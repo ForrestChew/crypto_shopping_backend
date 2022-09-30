@@ -38,3 +38,16 @@ class CreatedProduct(CreateProduct):
 
     class Config:
         orm_mode = True
+
+
+class CreateCart(BaseModel):
+    user_id: int
+    cart_quantity: Optional[int]
+
+
+class CreatedCart(CreateCart):
+    id: int
+    cart_quantity: Optional[int]
+
+    class Config:
+        orm_mode = True
