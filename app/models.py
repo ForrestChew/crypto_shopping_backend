@@ -34,6 +34,7 @@ class Cart(Base):
     user_id = Column(
         Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
+    cart_quantity = Column(Integer, server_default="0")
     user = relationship("User")
 
 
@@ -44,4 +45,6 @@ class CartItem(Base):
     cart_id = Column(
         Integer, ForeignKey("carts.id", ondelete="CASCADE"), nullable=False
     )
+    product_id = Column(Integer, ForeignKey("products.id", ondelete="CASCADE"))
     cart = relationship("Cart")
+    product = relationship("Product")
