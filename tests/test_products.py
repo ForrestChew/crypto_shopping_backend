@@ -23,7 +23,7 @@ def test_create_product(authed_admin_client, title, category, price, quantity):
     new_product = schemas.CreatedProduct(**res.json())
     assert res.status_code == 201
     assert new_product.title == title
-    assert new_product.category == category
+    assert new_product.category == category.lower()
     assert new_product.price == float(price)
     assert new_product.quantity == int(quantity)
 
@@ -70,3 +70,29 @@ def test_create_product_unauthorized(client, title, category, price, quantity):
         },
     )
     assert res.status_code == 401
+
+
+@pytest.mark.parametrize(
+    "product_id",
+    [(1), (2), (3), (4), (5), (6), (7), (8), (9), (10)],
+)
+def test_get_product_by_id(client, create_multiple_products, product_id):
+    res = client.get(f"/products/{product_id}")
+    assert res.status_code == 200
+
+
+@pytest.mark.parametrize(
+    "category",
+    [
+        ("electronics"),
+        ("arts and crafts"),
+        ("office supplies"),
+        ("musical instruments"),
+        ("clothing"),
+        ("home goods"),
+        ("Accessories"),
+    ],
+)
+def test_get_product_by_category(client, create_multiple_products, category):
+    res = client.get(f"/products?search={category}")
+    assert res.status_code == 200

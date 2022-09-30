@@ -6,7 +6,7 @@ from app.config import settings
 from app.main import app
 from app.database import get_db, Base
 from app.oauth2 import create_access_token
-from app import models
+from .products import products
 import pytest
 
 
@@ -89,3 +89,10 @@ def token(test_user):
 def authed_client(client, token):
     client.headers = {**client.headers, "Authorization": f"Bearer {token}"}
     return client
+
+
+@pytest.fixture
+def create_multiple_products(authed_admin_client):
+    for product in products:
+        res = authed_admin_client.post("/products/", json=product)
+    assert res.status_code == 201
