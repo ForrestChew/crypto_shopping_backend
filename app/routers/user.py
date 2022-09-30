@@ -42,7 +42,9 @@ def delete_user(
 
 
 @router.post(
-    "/", status_code=status.HTTP_201_CREATED, response_model=schemas.CreatedUser
+    "/",
+    status_code=status.HTTP_201_CREATED,
+    response_model=schemas.CreatedUser,
 )
 def create_user(user: schemas.CreateUser, db: Session = Depends(get_db)):
     hashed_password = utils.hash_password(user.password)
@@ -51,8 +53,8 @@ def create_user(user: schemas.CreateUser, db: Session = Depends(get_db)):
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    cart = models.Cart(**{"user_id": new_user.id})
-    db.add(cart)
+    new_cart = models.Cart(**{"user_id": new_user.id})
+    db.add(new_cart)
     db.commit()
-    db.refresh(cart)
+    db.refresh(new_cart)
     return new_user
