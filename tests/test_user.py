@@ -15,8 +15,13 @@ import pytest
 def test_create_user(client, email, password):
     res = client.post("/users/", json={"email": email, "password": password})
     new_user = schemas.CreatedUser(**res.json())
+    user_cart_res = client.get(f"/carts/{new_user.id}")
+    user_cart = schemas.CreatedCart(**user_cart_res.json())
     assert res.status_code == 201
     assert new_user.email == email
+    assert user_cart.id == 1
+    assert user_cart.user_id == new_user.id
+    assert user_cart.cart_quantity == 0
 
 
 def test_login_user(client, test_user):
