@@ -20,22 +20,30 @@ def create_user(user: schemas.CreateUser, db: Session = Depends(get_db)):
     return new_user
 
 
-@router.delete("/{id}")
+@router.get("/", status_code=status.HTTP_200_OK, response_model=schemas.CreatedUser)
+def get_current_user(
+    current_user: str = Depends(oauth2.get_current_user), db: Session = Depends(get_db)
+):
+    user = db.query(models.User).filter(models.User.id == current_user.id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
+    return user
+
+
+@router.delete("/")
 def delete_user(
-    id: int,
     current_user: str = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db),
 ):
-    user_query = db.query(models.User).filter(models.User.id == id)
+    user_query = db.query(models.User).filter(models.User.id == current_user.id)
     user = user_query.first()
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Post with id {id} was not found",
+            detail=f"User not found",
         )
-    print("Queried ID", id)
-    print("User ID", user.id)
-    print("Current User ID", current_user.id)
     if user.id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
