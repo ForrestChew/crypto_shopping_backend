@@ -38,6 +38,7 @@ class Cart(Base):
         Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
     cart_quantity = Column(Integer, server_default="0")
+    created_at = Column(TIMESTAMP(timezone=True), server_default=text("now()"))
     user = relationship("User")
 
 
