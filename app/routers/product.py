@@ -1,10 +1,34 @@
 from fastapi import status, HTTPException, Depends, APIRouter
+from typing import List
 from .. import models, schemas, oauth2
 from sqlalchemy.orm import Session
 from ..database import get_db
 
 
 router = APIRouter(prefix="/products", tags=["Products"])
+
+
+@router.get("/", response_model=List[schemas.CreatedProduct])
+def get_products(
+    limit: int = 10,
+    skip: int = 0,
+    search: str = "",
+    db: Session = Depends(get_db),
+):
+    products = (
+        db.query(models.Product)
+        .filter(models.Product.category.contains(search.lower()))
+        .limit(limit)
+        .offset(skip)
+        .all()
+    )
+    return products
+
+
+@router.get("/{id}")
+def get_product_by_id(id: int, db: Session = Depends(get_db)):
+    product = db.query(models.Product).filter(models.Product.id == id).first()
+    return product
 
 
 @router.post(
@@ -19,6 +43,7 @@ def create_product(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Not administrator"
         )
+    product.category = product.category.lower()
     new_product = models.Product(**product.dict())
     db.add(new_product)
     db.commit()
