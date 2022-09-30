@@ -1,6 +1,6 @@
 from unicodedata import category
 from .database import Base
-from sqlalchemy import Column, ForeignKey, Integer, String, Boolean, TIMESTAMP
+from sqlalchemy import Column, Float, ForeignKey, Integer, String, Boolean, TIMESTAMP
 from sqlalchemy.types import TIMESTAMP
 from sqlalchemy.sql.expression import text
 from sqlalchemy.orm import relationship
@@ -22,9 +22,11 @@ class Product(Base):
     __tablename__ = "products"
 
     id = Column(Integer, primary_key=True, nullable=False)
-    price = Column(Integer, nullable=False)
+    title = Column(String, nullable=False)
     category = Column(String, nullable=False)
+    price = Column(Float, nullable=False)
     rating = Column(Integer, server_default="0")
+    quantity = Column(Integer, nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), server_default=text("now()"))
 
 
