@@ -1,6 +1,6 @@
 from fastapi import status, HTTPException, Depends, APIRouter
 from typing import List
-from .. import models, schemas, oauth2
+from .. import models, schemas, utils
 from sqlalchemy.orm import Session
 from ..database import get_db
 
@@ -36,7 +36,7 @@ def get_product_by_id(id: int, db: Session = Depends(get_db)):
 )
 def create_product(
     product: schemas.CreateProduct,
-    current_user: str = Depends(oauth2.get_current_user),
+    current_user: str = Depends(utils.get_user_id_from_jwt),
     db: Session = Depends(get_db),
 ):
     if not current_user.is_administrator:
