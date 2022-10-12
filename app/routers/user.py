@@ -1,27 +1,27 @@
 from fastapi import status, HTTPException, Depends, APIRouter, Response
 from sqlalchemy.orm import Session
-from .. import schemas, models, utils, oauth2
+from .. import schemas, models, utils
 from ..database import get_db
 
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
-@router.get("/", status_code=status.HTTP_200_OK, response_model=schemas.CreatedUser)
-def get_current_user(
-    current_user: str = Depends(oauth2.get_current_user), db: Session = Depends(get_db)
+@router.get("", status_code=status.HTTP_200_OK, response_model=schemas.CreatedUser)
+def get_user(
+    current_user: str = Depends(utils.get_user_id_from_jwt),
 ):
-    user = db.query(models.User).filter(models.User.id == current_user.id).first()
-    if not user:
+
+    if not current_user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
         )
-    return user
+    return current_user
 
 
-@router.delete("/")
+@router.delete("")
 def delete_user(
-    current_user: str = Depends(oauth2.get_current_user),
+    current_user: str = Depends(utils.get_user_id_from_jwt),
     db: Session = Depends(get_db),
 ):
     user_query = db.query(models.User).filter(models.User.id == current_user.id)
@@ -29,7 +29,7 @@ def delete_user(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User not found",
+            detail="User not found",
         )
     if user.id != current_user.id:
         raise HTTPException(
@@ -42,7 +42,7 @@ def delete_user(
 
 
 @router.post(
-    "/",
+    "",
     status_code=status.HTTP_201_CREATED,
     response_model=schemas.CreatedUser,
 )
