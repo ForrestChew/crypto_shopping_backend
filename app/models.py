@@ -1,4 +1,3 @@
-from unicodedata import category
 from .database import Base
 from sqlalchemy import Column, Float, ForeignKey, Integer, String, Boolean, TIMESTAMP
 from sqlalchemy.types import TIMESTAMP
