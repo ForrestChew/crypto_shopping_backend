@@ -17,6 +17,13 @@ class CreatedUser(BaseModel):
         orm_mode = True
 
 
+class LoggedIn(BaseModel):
+    id: int
+    email: EmailStr
+    access_token: str
+    token_type: str
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str
