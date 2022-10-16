@@ -3,14 +3,12 @@ from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from fastapi_jwt_auth import AuthJWT
 from ..database import get_db
-from .. import models, utils
+from .. import models, utils, schemas
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
-@router.post(
-    "/login",
-)
+@router.post("/login", response_model=schemas.Tokens, status_code=status.HTTP_200_OK)
 def login(
     user_credentials: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db),
@@ -36,7 +34,7 @@ def login(
     return {"access_token": access_token, "refresh_token": refresh_token}
 
 
-@router.post("/refresh")
+@router.post("/refresh", response_model=schemas.Tokens, status_code=status.HTTP_200_OK)
 def refresh(Authorize: AuthJWT = Depends()):
     Authorize.jwt_refresh_token_required()
     current_user_id = Authorize.get_jwt_subject()
