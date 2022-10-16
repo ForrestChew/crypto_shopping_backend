@@ -15,17 +15,15 @@ def verify_password(non_hashed_password: str, hashed_password: str):
     return password_context.verify(non_hashed_password, hashed_password)
 
 
-def get_user_id_from_jwt(
+def get_user_id_from_valid_token(
     Authorize: AuthJWT = Depends(),
-    db: Session = Depends(database.get_db),
 ):
     try:
         Authorize.jwt_required()
     except:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Access token non-existant or not",
+            detail="Access token non-existant or not valid",
         )
     current_user_id = Authorize.get_jwt_subject()
-    user = db.query(models.User).filter(models.User.id == current_user_id).first()
-    return user
+    return str(current_user_id)
