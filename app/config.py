@@ -10,7 +10,6 @@ class Settings(BaseSettings):
     authjwt_secret_key: str
     authjwt_token_location: set = {"cookies"}
     authjwt_cookie_secure: bool
-    authjwt_cookie_csrf_protect: bool
     authjwt_cookie_domain: str
     authjwt_cookie_samesite: str
     authjwt_cookie_max_age: int
