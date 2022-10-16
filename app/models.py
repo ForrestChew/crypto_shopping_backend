@@ -1,5 +1,13 @@
 from .database import Base
-from sqlalchemy import Column, Float, ForeignKey, Integer, String, Boolean, TIMESTAMP
+from sqlalchemy import (
+    Column,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Boolean,
+    TIMESTAMP,
+)
 from sqlalchemy.types import TIMESTAMP
 from sqlalchemy.sql.expression import text
 from sqlalchemy.orm import relationship
@@ -27,6 +35,21 @@ class Product(Base):
     rating = Column(Integer, server_default="0")
     quantity = Column(Integer, nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), server_default=text("now()"))
+
+    product_image_path = relationship("ProductImagePath")
+
+
+class ProductImagePath(Base):
+    __tablename__ = "product_image_paths"
+
+    id = Column(Integer, primary_key=True, nullable=False)
+    image_path = Column(String, nullable=False)
+    product_id = Column(
+        Integer, ForeignKey("products.id", ondelete="CASCADE"), nullable=False
+    )
+    created_at = Column(
+        TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
+    )
 
 
 class Cart(Base):
