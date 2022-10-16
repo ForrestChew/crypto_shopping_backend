@@ -3,13 +3,13 @@ from pydantic import BaseModel, EmailStr, PositiveFloat
 from typing import Optional
 
 
-class CreateUser(BaseModel):
+class UserIn(BaseModel):
     email: EmailStr
     password: str
     is_administrator: Optional[Boolean]
 
 
-class CreatedUser(BaseModel):
+class UserOut(BaseModel):
     id: int
     email: EmailStr
 
@@ -17,42 +17,38 @@ class CreatedUser(BaseModel):
         orm_mode = True
 
 
-class LoggedIn(BaseModel):
-    id: int
-    email: EmailStr
+class Tokens(BaseModel):
     access_token: str
-    token_type: str
+    refresh_token: Optional[str]
 
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-
-class TokenData(BaseModel):
-    id: Optional[str] = None
-
-
-class CreateProduct(BaseModel):
+class ProductIn(BaseModel):
     title: str
     category: str
     price: PositiveFloat
     quantity: int
+    image_path: Optional[str]
 
 
-class CreatedProduct(CreateProduct):
+class ProductOut(ProductIn):
     id: int
+    rating: int
 
     class Config:
         orm_mode = True
 
 
-class CreateCart(BaseModel):
+class ProductCreate(ProductIn):
+    class Config:
+        orm_mode = True
+
+
+class CartIn(BaseModel):
     user_id: int
     cart_quantity: Optional[int]
 
 
-class CreatedCart(CreateCart):
+class CartOut(CartIn):
     id: int
     cart_quantity: Optional[int]
 
