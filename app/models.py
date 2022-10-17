@@ -34,6 +34,7 @@ class Product(Base):
     price = Column(Float, nullable=False)
     rating = Column(Integer, server_default="0")
     quantity = Column(Integer, nullable=False)
+    top_deal = Column(Boolean, server_default="False")
     created_at = Column(TIMESTAMP(timezone=True), server_default=text("now()"))
 
     product_image_path = relationship("ProductImagePath")
@@ -61,6 +62,7 @@ class Cart(Base):
     )
     cart_quantity = Column(Integer, server_default="0")
     created_at = Column(TIMESTAMP(timezone=True), server_default=text("now()"))
+
     user = relationship("User")
 
 
