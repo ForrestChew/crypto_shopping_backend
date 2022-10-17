@@ -34,7 +34,7 @@ class Product(Base):
     price = Column(Float, nullable=False)
     rating = Column(Integer, server_default="0")
     quantity = Column(Integer, nullable=False)
-    top_deal = Column(Boolean, server_default="False")
+    is_top_deal = Column(Boolean, server_default="False")
     created_at = Column(TIMESTAMP(timezone=True), server_default=text("now()"))
 
     product_image_path = relationship("ProductImagePath")
