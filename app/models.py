@@ -37,14 +37,14 @@ class Product(Base):
     is_top_deal = Column(Boolean, server_default="False")
     created_at = Column(TIMESTAMP(timezone=True), server_default=text("now()"))
 
-    product_image_path = relationship("ProductImagePath")
+    product_image_path = relationship("ProductImageTitle")
 
 
-class ProductImagePath(Base):
-    __tablename__ = "product_image_paths"
+class ProductImageTitle(Base):
+    __tablename__ = "product_image_titles"
 
     id = Column(Integer, primary_key=True, nullable=False)
-    image_path = Column(String, nullable=False)
+    image_title = Column(String, nullable=False)
     product_id = Column(
         Integer, ForeignKey("products.id", ondelete="CASCADE"), nullable=False
     )
