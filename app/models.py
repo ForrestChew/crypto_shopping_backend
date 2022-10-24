@@ -31,6 +31,7 @@ class Product(Base):
     id = Column(Integer, primary_key=True, nullable=False)
     title = Column(String, nullable=False)
     category = Column(String, nullable=False)
+    description = Column(String, nullable=False)
     price = Column(Float, nullable=False)
     rating = Column(Integer, server_default="0")
     quantity = Column(Integer, nullable=False)
