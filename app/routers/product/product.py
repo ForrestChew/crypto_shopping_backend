@@ -12,18 +12,10 @@ from .utils import get_valid_new_product_info_for_db
 router = APIRouter(prefix="/products", tags=["Products"])
 
 
-@router.get("/images/{img_title}", status_code=status.HTTP_200_OK)
-async def get_image_test(img_title: str):
-    relative_path = f"product_images/{img_title}"
-    return FileResponse(relative_path)
-
-
 @router.get(
     "/", response_model=List[schemas.ProductOut], status_code=status.HTTP_200_OK
 )
 def get_products(
-    limit: int = 10,
-    skip: int = 0,
     search: Optional[str] = "",
     db: Session = Depends(get_db),
 ):
@@ -33,19 +25,50 @@ def get_products(
             models.Product.title,
             models.Product.price,
             models.Product.quantity,
+            models.Product.description,
             models.Product.category,
-            models.Product.rating,
+            models.Product.is_top_deal,
             models.ProductImageTitle.image_title,
         )
         .outerjoin(
             models.ProductImageTitle,
             models.Product.id == models.ProductImageTitle.product_id,
         )
-        .filter(models.Product.category.contains(search.lower()))
-        .limit(limit)
-        .offset(skip)
+        .filter(models.Product.title.contains(search.lower()))
     ).all()
     return products
+
+
+@router.get(
+    "/category/{category}",
+    response_model=List[schemas.ProductOut],
+    status_code=status.HTTP_200_OK,
+)
+def get_products_by_category(category: str, db: Session = Depends(get_db)):
+    products = (
+        db.query(
+            models.Product.id,
+            models.Product.title,
+            models.Product.price,
+            models.Product.quantity,
+            models.Product.description,
+            models.Product.category,
+            models.Product.is_top_deal,
+            models.ProductImageTitle.image_title,
+        )
+        .outerjoin(
+            models.ProductImageTitle,
+            models.Product.id == models.ProductImageTitle.product_id,
+        )
+        .filter(models.Product.category == category)
+    ).all()
+    return products
+
+
+@router.get("/images/{img_title}", status_code=status.HTTP_200_OK)
+def get_image(img_title: str):
+    relative_path = f"product_images/{img_title}"
+    return FileResponse(relative_path)
 
 
 @router.get(
@@ -53,15 +76,16 @@ def get_products(
     response_model=List[schemas.ProductOut],
     status_code=status.HTTP_200_OK,
 )
-def get_top_deals(db: Session = Depends(get_db), limit: int = 10, skip: int = 0):
+def get_top_deals(db: Session = Depends(get_db), limit: int = 8, skip: int = 0):
     products = (
         db.query(
             models.Product.id,
             models.Product.title,
             models.Product.price,
             models.Product.quantity,
+            models.Product.description,
             models.Product.category,
-            models.Product.rating,
+            models.Product.is_top_deal,
             models.ProductImageTitle.image_title,
         )
         .outerjoin(
@@ -69,15 +93,46 @@ def get_top_deals(db: Session = Depends(get_db), limit: int = 10, skip: int = 0)
             models.Product.id == models.ProductImageTitle.product_id,
         )
         .filter(models.Product.is_top_deal == True)
-        .limit(limit)
         .offset(skip)
+        .limit(limit)
     ).all()
     return products
 
 
+@router.get(
+    "/product-search",
+    response_model=List[schemas.SearchResults],
+    status_code=status.HTTP_200_OK,
+)
+def get_search_results(search: Optional[str] = "", db: Session = Depends(get_db)):
+    search_results = (
+        db.query(models.Product.id, models.Product.title, models.Product.category)
+        .filter(models.Product.title.contains(search))
+        .limit(8)
+        .all()
+    )
+    return search_results
+
+
 @router.get("/{id}", response_model=schemas.ProductOut, status_code=status.HTTP_200_OK)
 def get_product_by_id(id: int, db: Session = Depends(get_db)):
-    product = db.query(models.Product).filter(models.Product.id == id).first()
+    product = (
+        db.query(
+            models.Product.id,
+            models.Product.title,
+            models.Product.price,
+            models.Product.quantity,
+            models.Product.description,
+            models.Product.category,
+            models.Product.is_top_deal,
+            models.ProductImageTitle.image_title,
+        )
+        .outerjoin(
+            models.ProductImageTitle,
+            models.Product.id == models.ProductImageTitle.product_id,
+        )
+        .filter(models.Product.id == id)
+    ).first()
     return product
 
 
