@@ -25,20 +25,30 @@ class Tokens(BaseModel):
 class ProductIn(BaseModel):
     title: str
     category: str
+    description: str
     price: PositiveFloat
     quantity: int
-    image_path: Optional[str]
+    image_title: Optional[str]
+    is_top_deal: Boolean
 
 
 class ProductOut(ProductIn):
     id: int
-    rating: int
 
     class Config:
         orm_mode = True
 
 
 class ProductCreate(ProductIn):
+    class Config:
+        orm_mode = True
+
+
+class SearchResults(BaseModel):
+    id: int
+    title: str
+    category: str
+
     class Config:
         orm_mode = True
 
