@@ -33,12 +33,9 @@ class Product(Base):
     category = Column(String, nullable=False)
     description = Column(String, nullable=False)
     price = Column(Float, nullable=False)
-    rating = Column(Integer, server_default="0")
     quantity = Column(Integer, nullable=False)
     is_top_deal = Column(Boolean, server_default="False")
     created_at = Column(TIMESTAMP(timezone=True), server_default=text("now()"))
-
-    product_image_path = relationship("ProductImageTitle")
 
 
 class ProductImageTitle(Base):
@@ -64,8 +61,6 @@ class Cart(Base):
     cart_quantity = Column(Integer, server_default="0")
     created_at = Column(TIMESTAMP(timezone=True), server_default=text("now()"))
 
-    user = relationship("User")
-
 
 class CartItem(Base):
     __tablename__ = "cart_items"
@@ -75,5 +70,3 @@ class CartItem(Base):
         Integer, ForeignKey("carts.id", ondelete="CASCADE"), nullable=False
     )
     product_id = Column(Integer, ForeignKey("products.id", ondelete="CASCADE"))
-    cart = relationship("Cart")
-    product = relationship("Product")
