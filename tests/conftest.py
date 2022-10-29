@@ -5,7 +5,6 @@ from sqlalchemy.orm import sessionmaker
 from app.config import settings
 from app.main import app
 from app.database import get_db, Base
-from app.oauth2 import create_access_token
 from .products import products
 import pytest
 
@@ -16,7 +15,7 @@ engine = create_engine(SQLALCHEMY_DATABASE_URL, pool_pre_ping=True)
 
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-client = TestClient(app)
+client = TestClient(app, base_url="http://localhost")
 
 
 @pytest.fixture
@@ -39,7 +38,7 @@ def client(session):
             session.close()
 
     app.dependency_overrides[get_db] = override_get_db
-    yield TestClient(app)
+    yield TestClient(app, base_url="http://localhost")
 
 
 @pytest.fixture
@@ -70,29 +69,33 @@ def test_admin(client):
 
 
 @pytest.fixture
-def admin_token(test_admin):
-    return create_access_token({"user_id": test_admin["id"]})
+def access_token_info_admin(client, test_admin):
+    res = client.post(
+        "auth/login",
+        data={"username": test_admin["email"], "password": test_admin["password"]},
+    )
+    res_obj = res.json()
+    csrf_access_token = (
+        res.headers["set-cookie"]
+        .split("csrf_access_token")[1]
+        .split("=")[1]
+        .split(";")[0]
+    )
+    return (res_obj["access_token"], csrf_access_token)
 
 
 @pytest.fixture
-def authed_admin_client(client, admin_token):
-    client.headers = {**client.headers, "Authorization": f"Bearer {admin_token}"}
+def authed_client_admin(client, access_token_info_admin):
+    client.headers = {
+        **client.headers,
+        "X-CSRF-TOKEN": access_token_info_admin[1],
+    }
+    client.cookies["access_token_cookie"] = access_token_info_admin[0]
     return client
 
 
 @pytest.fixture
-def token(test_user):
-    return create_access_token({"user_id": test_user["id"]})
-
-
-@pytest.fixture
-def authed_client(client, token):
-    client.headers = {**client.headers, "Authorization": f"Bearer {token}"}
-    return client
-
-
-@pytest.fixture
-def create_multiple_products(authed_admin_client):
+def create_multiple_products(authed_client_admin):
     for product in products:
-        res = authed_admin_client.post("/products/", json=product)
+        res = authed_client_admin.post("/products/", json=product)
     assert res.status_code == 201

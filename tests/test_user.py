@@ -1,6 +1,4 @@
-from jose import jwt
 from app import schemas
-from app.config import settings
 import pytest
 
 
@@ -14,30 +12,16 @@ import pytest
 )
 def test_create_user(client, email, password):
     res = client.post("/users/", json={"email": email, "password": password})
-    new_user = schemas.CreatedUser(**res.json())
-    user_cart_res = client.get(f"/carts/{new_user.id}")
-    user_cart = schemas.CreatedCart(**user_cart_res.json())
+    new_user = schemas.UserOut(**res.json())
     assert res.status_code == 201
     assert new_user.email == email
-    assert user_cart.id == 1
-    assert user_cart.user_id == new_user.id
-    assert user_cart.cart_quantity == 0
 
 
 def test_login_user(client, test_user):
     res = client.post(
-        "/login",
+        "auth/login",
         data={"username": test_user["email"], "password": test_user["password"]},
     )
-    login_res = schemas.Token(**res.json())
-    payload = jwt.decode(
-        login_res.access_token,
-        settings.jose_jwt_secret_key,
-        algorithms=[settings.algorithm],
-    )
-    id = payload.get("user_id")
-    assert id == test_user["id"]
-    assert login_res.token_type == "bearer"
     assert res.status_code == 200
 
 
@@ -52,17 +36,17 @@ def test_login_user(client, test_user):
 )
 def test_login_invalid_credentials(client, test_user, email, password, status_code):
     res = client.post(
-        "/login",
+        "auth/login",
         data={"username": email, "password": password},
     )
     assert str(res.status_code) == status_code
 
 
-def test_get_current_authed_user(authed_client):
-    res = authed_client.get("/users/")
-    user = schemas.CreatedUser(**res.json())
+def test_get_current_authed_user(authed_client_admin):
+    res = authed_client_admin.get("/users/")
+    user = schemas.UserOut(**res.json())
     assert res.status_code == 200
-    assert user.email == "testuser@gmail.com"
+    assert user.email == "testadmin@gmail.com"
 
 
 def test_get_user_unauthorized(client):
@@ -70,8 +54,8 @@ def test_get_user_unauthorized(client):
     assert res.status_code == 401
 
 
-def test_delete_user(authed_client, test_user):
-    res = authed_client.delete("/users/")
+def test_delete_user(authed_client_admin, test_user):
+    res = authed_client_admin.delete("/users/")
     assert res.status_code == 204
 
 
