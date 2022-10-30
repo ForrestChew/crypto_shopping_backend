@@ -8,6 +8,6 @@ def get_valid_new_product_info_for_db(product: schemas.ProductIn):
     product_dict = product.dict()
     product_dict["title"] = product_dict["title"].lower()
     product_dict["category"] = product_dict["category"].lower()
-    image_path = product_dict.pop("image_path")
+    image_path = product_dict.pop("image_title")
     new_product = models.Product(**product_dict)
     return new_product, image_path
