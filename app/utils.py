@@ -1,8 +1,6 @@
 from passlib.context import CryptContext
 from fastapi import Depends, status, HTTPException
 from fastapi_jwt_auth import AuthJWT
-from requests import Session
-from app import models, database
 
 password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
