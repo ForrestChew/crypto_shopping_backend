@@ -3,6 +3,7 @@ from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
 from .. import schemas, models, utils
 from ..database import get_db
+from ..utils import verify_jwt_access_token, get_user_id_from_jwt_access_token
 
 
 router = APIRouter(prefix="/users", tags=["Users"])
@@ -13,8 +14,8 @@ def get_user(
     db: Session = Depends(get_db),
     Authorize: AuthJWT = Depends(),
 ):
-    Authorize.jwt_required()
-    current_user_id = Authorize.get_jwt_subject()
+    verify_jwt_access_token(Authorize)
+    current_user_id = get_user_id_from_jwt_access_token(Authorize)
     if not current_user_id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
@@ -27,8 +28,8 @@ def get_user(
 
 @router.delete("/")
 def delete_user(db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
-    Authorize.jwt_required()
-    current_user_id = Authorize.get_jwt_subject()
+    verify_jwt_access_token(Authorize)
+    current_user_id = get_user_id_from_jwt_access_token(Authorize)
     user_query = db.query(models.User).filter(models.User.id == current_user_id)
     user = user_query.first()
     if not user:

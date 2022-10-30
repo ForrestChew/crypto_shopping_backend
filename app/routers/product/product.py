@@ -1,4 +1,4 @@
-from unicodedata import name
+import stat
 from fastapi import status, HTTPException, Depends, APIRouter
 from fastapi.responses import FileResponse
 from fastapi_jwt_auth import AuthJWT
@@ -7,6 +7,7 @@ from ... import models, schemas
 from sqlalchemy.orm import Session
 from ...database import get_db
 from .utils import get_valid_new_product_info_for_db
+from ...utils import verify_jwt_access_token, get_user_id_from_jwt_access_token
 
 
 router = APIRouter(prefix="/products", tags=["Products"])
@@ -144,8 +145,8 @@ def create_product(
     db: Session = Depends(get_db),
     Authorize: AuthJWT = Depends(),
 ):
-    Authorize.jwt_required()
-    current_user_id = Authorize.get_jwt_subject()
+    verify_jwt_access_token(Authorize)
+    current_user_id = get_user_id_from_jwt_access_token(Authorize)
     current_user = (
         db.query(models.User).filter(models.User.id == current_user_id).first()
     )
