@@ -34,6 +34,7 @@ class ProductIn(BaseModel):
 
 class ProductOut(ProductIn):
     id: int
+    product_quantity: Optional[int]
 
     class Config:
         orm_mode = True
@@ -61,6 +62,15 @@ class CartIn(BaseModel):
 class CartOut(CartIn):
     id: int
     cart_quantity: Optional[int]
+
+    class Config:
+        orm_mode = True
+
+
+class CartItemOut(BaseModel):
+    cart_id: int
+    product_id: int
+    product_quantity: int
 
     class Config:
         orm_mode = True
