@@ -69,4 +69,5 @@ class CartItem(Base):
     cart_id = Column(
         Integer, ForeignKey("carts.id", ondelete="CASCADE"), nullable=False
     )
+    product_quantity = Column(Integer, nullable=False)
     product_id = Column(Integer, ForeignKey("products.id", ondelete="CASCADE"))
